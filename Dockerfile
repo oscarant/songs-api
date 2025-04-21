@@ -7,7 +7,7 @@ ENV PYTHONPATH=/app
 WORKDIR /app
 
 # Install poetry
-RUN pip install --no-cache-dir poetry==1.6.1
+RUN pip install --no-cache-dir poetry
 
 # Copy poetry configuration files
 COPY pyproject.toml poetry.toml ./
@@ -16,7 +16,7 @@ COPY pyproject.toml poetry.toml ./
 RUN poetry config virtualenvs.create false
 
 # Install dependencies
-RUN poetry install --no-dev --no-interaction --no-ansi
+RUN poetry install --only main --no-root
 
 # Copy application code
 COPY . .
@@ -24,5 +24,5 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 5000
 
-# Command to run the application
-CMD ["python", "scripts/run.py"]
+# Command to run the application with gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "songs_api.main:create_app()"]

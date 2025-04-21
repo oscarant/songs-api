@@ -1,15 +1,12 @@
-from typing import Any
-
-from beanie import init_beanie
 from flask import Flask
-from motor.motor_asyncio import AsyncIOMotorClient
 
 from songs_api.config import Settings
 from songs_api.db.client import get_client
+from songs_api.db.init_db import init_db
 from songs_api.exceptions.handlers import register_error_handlers
 
 
-async def create_app() -> Flask:
+def create_app() -> Flask:
     """
     Create and configure the Flask application.
     :return: Flask app instance.
@@ -22,11 +19,10 @@ async def create_app() -> Flask:
     from songs_api.db.models.song import Song
 
     # Initialize Mongo client (cached) and Beanie
-    db_client: AsyncIOMotorClient[Any] = get_client()
-    await init_beanie(
-        database=db_client.get_default_database(),
-        document_models=[Song, Rating],
-    )
+    db_client = get_client()
+
+    # Initialize Beanie synchronously
+    init_db(db_client, [Song, Rating])
 
     # Register Flask blueprints
     from songs_api.api.ratings import ratings_bp

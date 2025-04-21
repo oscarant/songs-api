@@ -12,7 +12,7 @@ from songs_api.config import Settings
 from songs_api.db.models.song import Song
 
 
-async def import_songs(file_path: str, drop_existing: bool = False) -> None:
+def import_songs(file_path: str, drop_existing: bool = False) -> None:
     """Import songs from JSON file to MongoDB."""
     print(f"Importing songs from {file_path}...")
 
@@ -20,12 +20,22 @@ async def import_songs(file_path: str, drop_existing: bool = False) -> None:
     settings = Settings()
     client = motor.motor_asyncio.AsyncIOMotorClient(settings.MONGO_URI)
     db = client.get_default_database()
-    await init_beanie(database=db, document_models=[Song])
+
+    # Run async init in a synchronous context
+    loop = asyncio.new_event_loop()
+    try:
+        loop.run_until_complete(init_beanie(database=db, document_models=[Song]))
+    finally:
+        loop.close()
 
     # Drop existing collection if requested
     if drop_existing:
         print("Dropping existing songs collection...")
-        await db.drop_collection("songs")
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(db.drop_collection("songs"))
+        finally:
+            loop.close()
 
     # Read and parse songs data
     path = Path(file_path)
@@ -53,8 +63,12 @@ async def import_songs(file_path: str, drop_existing: bool = False) -> None:
 
     # Insert all songs at once
     print(f"Inserting {len(songs)} songs...")
-    result = await Song.insert_many(songs)
-    print(f"Successfully imported {len(result.inserted_ids)} songs")
+    loop = asyncio.new_event_loop()
+    try:
+        result = loop.run_until_complete(Song.insert_many(songs))
+        print(f"Successfully imported {len(result.inserted_ids)} songs")
+    finally:
+        loop.close()
 
 
 if __name__ == "__main__":
@@ -74,4 +88,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    asyncio.run(import_songs(args.file, args.drop))
+    import_songs(args.file, args.drop)

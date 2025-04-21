@@ -13,13 +13,13 @@ class SongService:
 
     repo: SongRepository = field(default_factory=SongRepository)
 
-    async def list_songs(
+    def list_songs(
         self,
         page: int = 1,
         size: Optional[int] = None,
     ) -> Page[SongEntity]:
         """Return a paginated list of SongEntity."""
-        items, total = await self.repo.list_songs(page=page, size=size)
+        items, total = self.repo.list_songs(page=page, size=size)
 
         entities: List[SongEntity] = []
         for doc in items:
@@ -34,22 +34,22 @@ class SongService:
             size=len(entities),
         )
 
-    async def average_difficulty(self, level: Optional[int] = None) -> float:
+    def average_difficulty(self, level: Optional[int] = None) -> float:
         """Get average difficulty, optionally filtering by level."""
-        return await self.repo.average_difficulty(level)
+        return self.repo.average_difficulty(level)
 
     async def search_songs(self, message: str) -> List[SongEntity]:
         """Search songs by text, returning domain entities."""
-        docs = await self.repo.search_songs(message)
+        docs = self.repo.search_songs(message)
         return [
             SongEntity.model_validate({**doc.model_dump(), "id": str(doc.id)})
             for doc in docs
         ]
 
-    async def get_song(self, song_id: str) -> SongEntity:
+    def get_song(self, song_id: str) -> SongEntity:
         """Fetch a single song entity or raise NotFoundError."""
         try:
-            doc = await self.repo.get_song_by_id(song_id)
+            doc = self.repo.get_song_by_id(song_id)
         except ValueError as e:
             raise NotFoundError(str(e)) from e
         data = doc.model_dump()

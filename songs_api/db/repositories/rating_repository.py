@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
@@ -10,7 +11,7 @@ from songs_api.db.models.rating import Rating
 class RatingRepository:
     """Handles persistence of ratings and computing statistics."""
 
-    async def add_rating(self, song_id: str, rating_value: int) -> Rating:
+    def add_rating(self, song_id: str, rating_value: int) -> Rating:
         """
         Insert a new Rating document and return it.
 
@@ -23,9 +24,9 @@ class RatingRepository:
             raise ValueError(f"Invalid song_id: {song_id}") from None
 
         rating = Rating(song_id=obj_id, rating=rating_value)
-        return await rating.insert()
+        return self._run_async(rating.insert())
 
-    async def get_rating_stats(self, song_id: str) -> Tuple[float, int, int]:
+    def get_rating_stats(self, song_id: str) -> Tuple[float, int, int]:
         """
         Compute average, minimum, and maximum rating for a given song.
 
@@ -52,12 +53,20 @@ class RatingRepository:
             },
         ]
         cursor = Rating.get_motor_collection().aggregate(pipeline)
-        result = await cursor.to_list(length=1)
+        result = self._run_async(cursor.to_list(length=1))
         if not result:
             return 0.0, 0, 0
 
         stats = result[0]
         return stats.get("avg", 0.0), stats.get("min", 0), stats.get("max", 0)
+
+    def _run_async(self, coro: Any) -> Any:
+        """Helper method to run async code in a synchronous context."""
+        loop = asyncio.new_event_loop()
+        try:
+            return loop.run_until_complete(coro)
+        finally:
+            loop.close()
 
 
 # Module-level singleton for convenience

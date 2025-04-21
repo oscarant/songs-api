@@ -11,10 +11,10 @@ class RatingService:
 
     repo: RatingRepository = field(default_factory=lambda: rating_repo)
 
-    async def add_rating(self, song_id: str, rating_value: int) -> RatingEntity:
+    def add_rating(self, song_id: str, rating_value: int) -> RatingEntity:
         """Add a new rating; raise NotFoundError on invalid song."""
         try:
-            rating_doc = await self.repo.add_rating(
+            rating_doc = self.repo.add_rating(
                 song_id=song_id,
                 rating_value=rating_value,
             )
@@ -28,10 +28,10 @@ class RatingService:
             rating=rating_doc.rating,
         )
 
-    async def get_stats(self, song_id: str) -> RatingStatsEntity:
+    def get_stats(self, song_id: str) -> RatingStatsEntity:
         """Fetch rating stats; raise NotFoundError on invalid song."""
         try:
-            avg, lowest, highest = await self.repo.get_rating_stats(song_id)
+            avg, lowest, highest = self.repo.get_rating_stats(song_id)
         except ValueError as e:
             raise NotFoundError(str(e)) from e
 
