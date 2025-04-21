@@ -1,3 +1,5 @@
+from typing import Optional
+
 from flask import Blueprint
 from flask_pydantic import validate
 
@@ -15,8 +17,8 @@ songs_bp = Blueprint("songs", __name__, url_prefix="/songs")
 
 
 @songs_bp.route("", methods=["GET"])
-@validate(query=ListSongsParams)
-async def get_songs(params: ListSongsParams) -> PagedSongsResponse:
+@validate()
+async def get_songs(params: Optional[ListSongsParams]) -> PagedSongsResponse:
     """A: List songs with pagination."""
     page_obj = await song_service.list_songs(page=params.page, size=params.size)
     items = [SongResponse.model_validate(item.model_dump()) for item in page_obj.items]
@@ -30,8 +32,10 @@ async def get_songs(params: ListSongsParams) -> PagedSongsResponse:
 
 
 @songs_bp.route("/difficulty", methods=["GET"])
-@validate(query=DifficultyParams)
-async def get_average_difficulty(params: DifficultyParams) -> AverageDifficultyResponse:
+@validate()
+async def get_average_difficulty(
+    params: Optional[DifficultyParams],
+) -> AverageDifficultyResponse:
     """B: Get average difficulty, optionally filtered by level."""
     avg = await song_service.average_difficulty(level=params.level)
     return AverageDifficultyResponse(
@@ -40,8 +44,8 @@ async def get_average_difficulty(params: DifficultyParams) -> AverageDifficultyR
 
 
 @songs_bp.route("/search", methods=["GET"])
-@validate(query=SearchSongsParams)
-async def search_songs(params: SearchSongsParams) -> list[SongResponse]:
+@validate()
+async def search_songs(params: Optional[SearchSongsParams]) -> list[SongResponse]:
     """C: Full-text search on artist/title."""
     items = await song_service.search_songs(params.message)
     return [SongResponse(**item.model_dump()) for item in items]
