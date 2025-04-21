@@ -1,0 +1,44 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-ast
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-toml
+      - id: check-json
+      - id: check-yaml
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: pretty-format-json
+        args: [ --autofix ]
+
+  - repo: local
+    hooks:
+
+      - id: black
+        name: Format with Black
+        entry: poetry run black
+        language: system
+        types: [ python ]
+        args: [ "songs_api", "tests" ]  # Explicitly specify directories
+
+      - id: ruff
+        name: Check with Ruff
+        entry: poetry run ruff
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: [ "check", "songs_api", "tests", "--fix", "--unsafe-fixes" ]
+
+      - id: mypy
+        name: Validate types with MyPy
+        entry: poetry run mypy
+        language: system
+        types: [ python ]
+        pass_filenames: false
+        args: [ "songs_api"]
