@@ -21,6 +21,10 @@ class PagedSongsResponse(BaseModel):
     size: int
 
 
+class AverageDifficultyResponse(BaseModel):
+    average_difficulty: float
+
+
 # --- Query/Request Schemas ---
 class ListSongsParams(BaseModel):
     page: int = Field(1, ge=1, description="Page number (1-based)")

@@ -7,3 +7,11 @@ class RatingEntity(BaseModel):
     rating: int
 
     model_config = {"from_attributes": True}
+
+
+class RatingStatsEntity(BaseModel):
+    average: float
+    lowest: int
+    highest: int
+
+    model_config = {"from_attributes": True}
