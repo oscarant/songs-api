@@ -6,11 +6,16 @@ authors = [
     {name = "Oscar Pacheco",email = "oscarandrespacheco@gmail.com"}
 ]
 
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry.dependencies]
 python = ">=3.9.1,<4.0.0"
 flask = "^3.1.0"
 flask-pydantic = "^0.13.0"
 beanie = "^1.29.0"
+pydantic-settings = "^2.9.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
@@ -79,6 +84,7 @@ lint.ignore = [
     "D105",    # Missing docstring in magic method
     "D107",    # Missing docstring in __init__
     "B008",    # Do not perform function calls in argument defaults
+    "D205",    # blank line required between summary line and description
     "D211",    # No blank lines allowed before class docstring
     "D212",    # Multi-line docstring summary should start at the first line
     "D401",    # First line should be in imperative mood
@@ -109,7 +115,3 @@ ignore-decorators = ["typing.overload"]
 
 [tool.ruff.lint.pylint]
 allow-magic-value-types = ["int", "str", "float", "bytes"]
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
