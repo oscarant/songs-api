@@ -1,4 +1,3 @@
-import asyncio
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
@@ -19,7 +18,7 @@ class RatingRepository:
           ValueError: if `song_id` is invalid.
         """
         try:
-            obj_id = ObjectId(song_id)
+            ObjectId(song_id)
         except Exception:
             raise ValueError(f"Invalid song_id: {song_id}") from None
 

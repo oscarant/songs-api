@@ -14,8 +14,6 @@ def create_app() -> Flask:
     app = Flask(__name__)
 
     # Import Beanie document models here to avoid circular imports
-    from songs_api.db.models.rating import Rating
-    from songs_api.db.models.song import Song
 
     # Connect to MongoDB
     connect_db()

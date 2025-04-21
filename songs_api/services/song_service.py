@@ -23,14 +23,16 @@ class SongService:
 
         entities: List[SongEntity] = []
         for doc in items:
-            entities.append(SongEntity(
-                id=str(doc.id),
-                artist=doc.artist,
-                title=doc.title,
-                difficulty=doc.difficulty,
-                level=doc.level,
-                released=doc.released
-            ))
+            entities.append(
+                SongEntity(
+                    id=str(doc.id),
+                    artist=doc.artist,
+                    title=doc.title,
+                    difficulty=doc.difficulty,
+                    level=doc.level,
+                    released=doc.released,
+                ),
+            )
 
         return Page[SongEntity](
             items=entities,
@@ -43,7 +45,7 @@ class SongService:
         """Get average difficulty, optionally filtering by level."""
         return self.repo.average_difficulty(level)
 
-    async def search_songs(self, message: str) -> List[SongEntity]:
+    def search_songs(self, message: str) -> List[SongEntity]:
         """Search songs by text, returning domain entities."""
         docs = self.repo.search_songs(message)
         return [
@@ -53,7 +55,7 @@ class SongService:
                 title=doc.title,
                 difficulty=doc.difficulty,
                 level=doc.level,
-                released=doc.released
+                released=doc.released,
             )
             for doc in docs
         ]
@@ -71,7 +73,7 @@ class SongService:
             title=doc.title,
             difficulty=doc.difficulty,
             level=doc.level,
-            released=doc.released
+            released=doc.released,
         )
 
 

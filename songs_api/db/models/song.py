@@ -1,5 +1,7 @@
-from datetime import date
-from mongoengine import Document, StringField, FloatField, IntField, DateField
+from typing import ClassVar
+
+from mongoengine import DateField, Document, FloatField, IntField, StringField
+
 
 class Song(Document):
     """MongoEngine Document for a song entry."""
@@ -10,10 +12,13 @@ class Song(Document):
     level = IntField(min_value=1, required=True)
     released = DateField(required=True)
 
-    meta = {
+    meta: ClassVar = {
         "collection": "songs",
         "indexes": [
-            {"fields": ["$artist", "$title"], "default_language": "english"},  # full-text search
+            {
+                "fields": ["$artist", "$title"],
+                "default_language": "english",
+            },  # full-text search
             {"fields": ["level"]},  # filter by level
         ],
     }

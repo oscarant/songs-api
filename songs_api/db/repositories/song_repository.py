@@ -1,4 +1,3 @@
-import asyncio
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
@@ -6,7 +5,6 @@ from bson import ObjectId
 
 from songs_api.config import Settings
 from songs_api.db.models.song import Song
-
 
 
 @dataclass
@@ -35,9 +33,7 @@ class SongRepository:
         return list(songs), total
 
     def average_difficulty(self, level: Optional[int] = None) -> float:
-        """
-        Compute the average difficulty, optionally filtered by level.
-        """
+        """Compute the average difficulty, optionally filtered by level."""
         pipeline: List[Dict[str, Any]] = []
 
         if level is not None:
@@ -69,4 +65,3 @@ class SongRepository:
         if not song:
             raise ValueError(f"Song not found: {song_id}") from None
         return song
-
