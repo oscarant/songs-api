@@ -1,8 +1,7 @@
 from flask import Flask
 
 from songs_api.config import Settings
-from songs_api.db.client import get_client
-from songs_api.db.init_db import init_db
+from songs_api.db.client import connect_db
 from songs_api.exceptions.handlers import register_error_handlers
 
 
@@ -18,11 +17,8 @@ def create_app() -> Flask:
     from songs_api.db.models.rating import Rating
     from songs_api.db.models.song import Song
 
-    # Initialize Mongo client (cached) and Beanie
-    db_client = get_client()
-
-    # Initialize Beanie synchronously
-    init_db(db_client, [Song, Rating])
+    # Connect to MongoDB
+    connect_db()
 
     # Register Flask blueprints
     from songs_api.api.ratings import ratings_bp
@@ -33,5 +29,8 @@ def create_app() -> Flask:
 
     # Register error handlers
     register_error_handlers(app)
+
+    # Set debug to true
+    app.config["DEBUG"] = Settings().DEBUG
 
     return app

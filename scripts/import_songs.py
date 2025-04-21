@@ -1,12 +1,10 @@
 """Script to import songs.json data into MongoDB."""
 
-import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
 
-import motor.motor_asyncio
-from beanie import init_beanie
+from mongoengine import connect, disconnect
 
 from songs_api.config import Settings
 from songs_api.db.models.song import Song
@@ -16,26 +14,14 @@ def import_songs(file_path: str, drop_existing: bool = False) -> None:
     """Import songs from JSON file to MongoDB."""
     print(f"Importing songs from {file_path}...")
 
-    # Initialize MongoDB connection and Beanie
+    # Initialize MongoDB connection
     settings = Settings()
-    client = motor.motor_asyncio.AsyncIOMotorClient(settings.MONGO_URI)
-    db = client.get_default_database()
-
-    # Run async init in a synchronous context
-    loop = asyncio.new_event_loop()
-    try:
-        loop.run_until_complete(init_beanie(database=db, document_models=[Song]))
-    finally:
-        loop.close()
+    connect(host=settings.MONGO_URI)
 
     # Drop existing collection if requested
     if drop_existing:
         print("Dropping existing songs collection...")
-        loop = asyncio.new_event_loop()
-        try:
-            loop.run_until_complete(db.drop_collection("songs"))
-        finally:
-            loop.close()
+        Song.drop_collection()
 
     # Read and parse songs data
     path = Path(file_path)
@@ -51,24 +37,22 @@ def import_songs(file_path: str, drop_existing: bool = False) -> None:
         # Convert released string to date object
         released_date = datetime.strptime(song_data["released"], "%Y-%m-%d").date()
 
-        songs.append(
-            Song(
-                artist=song_data["artist"],
-                title=song_data["title"],
-                difficulty=song_data["difficulty"],
-                level=song_data["level"],
-                released=released_date,
-            )
+        song = Song(
+            artist=song_data["artist"],
+            title=song_data["title"],
+            difficulty=song_data["difficulty"],
+            level=song_data["level"],
+            released=released_date,
         )
+        songs.append(song)
 
-    # Insert all songs at once
+    # Insert songs
     print(f"Inserting {len(songs)} songs...")
-    loop = asyncio.new_event_loop()
-    try:
-        result = loop.run_until_complete(Song.insert_many(songs))
-        print(f"Successfully imported {len(result.inserted_ids)} songs")
-    finally:
-        loop.close()
+    for song in songs:
+        song.save()
+
+    print(f"Successfully imported {len(songs)} songs")
+    disconnect()
 
 
 if __name__ == "__main__":

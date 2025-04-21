@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from songs_api.db.repositories.rating_repository import RatingRepository, rating_repo
+from songs_api.db.repositories.rating_repository import RatingRepository
 from songs_api.exceptions.custom import NotFoundError
 from songs_api.schemas.entities.rating import RatingEntity, RatingStatsEntity
 
@@ -9,7 +9,7 @@ from songs_api.schemas.entities.rating import RatingEntity, RatingStatsEntity
 class RatingService:
     """Orchestrates rating operations and maps results to domain entities."""
 
-    repo: RatingRepository = field(default_factory=lambda: rating_repo)
+    repo: RatingRepository = field(default_factory=RatingRepository)
 
     def add_rating(self, song_id: str, rating_value: int) -> RatingEntity:
         """Add a new rating; raise NotFoundError on invalid song."""

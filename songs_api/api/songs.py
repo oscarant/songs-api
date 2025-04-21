@@ -16,11 +16,11 @@ songs_bp = Blueprint("songs", __name__, url_prefix="/songs")
 
 @songs_bp.route("", methods=["GET"])
 @validate(query=ListSongsParams)
-def get_songs(params: ListSongsParams) -> PagedSongsResponse:
+def get_songs(query: ListSongsParams) -> PagedSongsResponse:
     """A: List songs with pagination."""
     page_obj = song_service.list_songs(
-        page=params.page,
-        size=params.size,
+        page=query.page,
+        size=query.size,
     )
     items = [SongResponse.model_validate(item.model_dump()) for item in page_obj.items]
 
@@ -35,10 +35,10 @@ def get_songs(params: ListSongsParams) -> PagedSongsResponse:
 @songs_bp.route("/difficulty", methods=["GET"])
 @validate()
 def get_average_difficulty(
-    params: DifficultyParams,
+    query: DifficultyParams,
 ) -> AverageDifficultyResponse:
     """B: Get average difficulty, optionally filtered by level."""
-    avg = song_service.average_difficulty(level=params.level)
+    avg = song_service.average_difficulty(level=query.level)
     return AverageDifficultyResponse(
         average_difficulty=avg,
     )
@@ -46,7 +46,7 @@ def get_average_difficulty(
 
 @songs_bp.route("/search", methods=["GET"])
 @validate()
-async def search_songs(params: SearchSongsParams) -> list[SongResponse]:
+def search_songs(query: SearchSongsParams) -> list[SongResponse]:
     """C: Full-text search on artist/title."""
-    items = await song_service.search_songs(params.message)
+    items = song_service.search_songs(query.message)
     return [SongResponse(**item.model_dump()) for item in items]

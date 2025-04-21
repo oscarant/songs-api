@@ -14,9 +14,9 @@ build-backend = "poetry.core.masonry.api"
 python = ">=3.9.1,<4.0.0"
 flask = "^3.1.0"
 flask-pydantic = "^0.13.0"
-beanie = "^1.29.0"
 pydantic-settings = "^2.9.1"
 gunicorn = "^23.0.0"
+mongoengine = "^0.29.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"

@@ -23,9 +23,14 @@ class SongService:
 
         entities: List[SongEntity] = []
         for doc in items:
-            data = doc.model_dump()
-            data["id"] = str(doc.id)
-            entities.append(SongEntity.model_validate(data))
+            entities.append(SongEntity(
+                id=str(doc.id),
+                artist=doc.artist,
+                title=doc.title,
+                difficulty=doc.difficulty,
+                level=doc.level,
+                released=doc.released
+            ))
 
         return Page[SongEntity](
             items=entities,
@@ -42,7 +47,14 @@ class SongService:
         """Search songs by text, returning domain entities."""
         docs = self.repo.search_songs(message)
         return [
-            SongEntity.model_validate({**doc.model_dump(), "id": str(doc.id)})
+            SongEntity(
+                id=str(doc.id),
+                artist=doc.artist,
+                title=doc.title,
+                difficulty=doc.difficulty,
+                level=doc.level,
+                released=doc.released
+            )
             for doc in docs
         ]
 
@@ -52,9 +64,15 @@ class SongService:
             doc = self.repo.get_song_by_id(song_id)
         except ValueError as e:
             raise NotFoundError(str(e)) from e
-        data = doc.model_dump()
-        data["id"] = str(doc.id)
-        return SongEntity.model_validate(data)
+
+        return SongEntity(
+            id=str(doc.id),
+            artist=doc.artist,
+            title=doc.title,
+            difficulty=doc.difficulty,
+            level=doc.level,
+            released=doc.released
+        )
 
 
 # Module-level singleton for convenience

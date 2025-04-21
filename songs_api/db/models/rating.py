@@ -1,18 +1,18 @@
-from typing import ClassVar
-
-from beanie import Document, Indexed, PydanticObjectId
-from pydantic import Field
-
+from mongoengine import Document, ReferenceField, IntField, StringField
+from songs_api.db.models.song import Song
 
 class Rating(Document):
-    """Beanie Document for a song rating."""
+    """Rating document model."""
 
-    song_id: PydanticObjectId = Indexed()  # Reference to the Song document
-    rating: int = Field(ge=1, le=5)  # Rating between 1 and 5 inclusive
+    song_id = StringField(required=True)
+    rating = IntField(required=True, min_value=1, max_value=5)
 
-    class Settings:
-        name: ClassVar[str] = "ratings"
-        indexes: ClassVar[list] = [  # type: ignore[type-arg]
-            [("song_id", 1)],  # look up ratings by song
-            [("song_id", 1), ("rating", 1)],  # optimize aggregated queries
+    meta = {
+        'collection': 'ratings',
+        'indexes': [
+            'song_id',
+            {
+                'fields': ['song_id', 'rating']
+            }
         ]
+    }

@@ -2,7 +2,7 @@ import asyncio
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
-from beanie import PydanticObjectId
+from bson import ObjectId
 
 from songs_api.db.models.rating import Rating
 
@@ -19,12 +19,13 @@ class RatingRepository:
           ValueError: if `song_id` is invalid.
         """
         try:
-            obj_id = PydanticObjectId(song_id)
+            obj_id = ObjectId(song_id)
         except Exception:
             raise ValueError(f"Invalid song_id: {song_id}") from None
 
-        rating = Rating(song_id=obj_id, rating=rating_value)
-        return self._run_async(rating.insert())
+        rating = Rating(song_id=song_id, rating=rating_value)
+        rating.save()
+        return rating
 
     def get_rating_stats(self, song_id: str) -> Tuple[float, int, int]:
         """
@@ -37,12 +38,12 @@ class RatingRepository:
           (average: float, lowest: int, highest: int)
         """
         try:
-            obj_id = PydanticObjectId(song_id)
+            ObjectId(song_id)
         except Exception:
             raise ValueError(f"Invalid song_id: {song_id}") from None
 
         pipeline: List[Dict[str, Any]] = [
-            {"$match": {"song_id": obj_id}},
+            {"$match": {"song_id": song_id}},
             {
                 "$group": {
                     "_id": None,
@@ -52,22 +53,10 @@ class RatingRepository:
                 },
             },
         ]
-        cursor = Rating.get_motor_collection().aggregate(pipeline)
-        result = self._run_async(cursor.to_list(length=1))
-        if not result:
-            return 0.0, 0, 0
+        result = Rating.objects.aggregate(*pipeline)
 
-        stats = result[0]
-        return stats.get("avg", 0.0), stats.get("min", 0), stats.get("max", 0)
-
-    def _run_async(self, coro: Any) -> Any:
-        """Helper method to run async code in a synchronous context."""
-        loop = asyncio.new_event_loop()
         try:
-            return loop.run_until_complete(coro)
-        finally:
-            loop.close()
-
-
-# Module-level singleton for convenience
-rating_repo = RatingRepository()
+            stats = next(result)
+            return stats.get("avg", 0.0), stats.get("min", 0), stats.get("max", 0)
+        except StopIteration:
+            return 0.0, 0, 0
