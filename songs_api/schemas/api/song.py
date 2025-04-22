@@ -1,7 +1,7 @@
 from datetime import date
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
 
 # --- Response Schemas ---
@@ -12,6 +12,11 @@ class SongResponse(BaseModel):
     difficulty: float
     level: int
     released: date
+
+    @field_serializer("released")
+    def serialize_released(self, dt: date) -> str:
+        """Convert date to string format YYYY-MM-DD."""
+        return dt.strftime("%Y-%m-%d")
 
 
 class SongListResponse(BaseModel):
