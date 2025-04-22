@@ -43,7 +43,7 @@ class SongService:
 
     def average_difficulty(self, level: Optional[int] = None) -> float:
         """Get average difficulty, optionally filtering by level."""
-        return self.repo.average_difficulty(level)
+        return self.repo.average_difficulty(level=level)
 
     def search_songs(self, message: str) -> List[SongEntity]:
         """Search songs by text, returning domain entities."""
