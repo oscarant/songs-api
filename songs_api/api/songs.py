@@ -7,7 +7,8 @@ from songs_api.schemas.api.song import (
     ListSongsParams,
     PagedSongsResponse,
     SearchSongsParams,
-    SongResponse, SongListResponse,
+    SongListResponse,
+    SongResponse,
 )
 from songs_api.services.song_service import song_service
 
