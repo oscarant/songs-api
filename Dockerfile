@@ -10,7 +10,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir poetry
 
 # Copy poetry configuration files
-COPY pyproject.toml poetry.toml ./
+COPY pyproject.toml ./
 
 # Configure poetry to not create a virtual environment
 RUN poetry config virtualenvs.create false
@@ -25,4 +25,4 @@ COPY . .
 EXPOSE 5000
 
 # Command to run the application with gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "songs_api.main:create_app()"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "wsgi:app"]

@@ -32,7 +32,7 @@ services:
       - songs_network
     command: >
       sh -c "python scripts/import_songs.py --file songs.json --drop &&
-             gunicorn --bind 0.0.0.0:5000 'songs_api.main:create_app()'"
+             gunicorn --bind 0.0.0.0:5000 'wsgi:app'"
 
 networks:
   songs_network:
