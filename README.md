@@ -23,38 +23,14 @@ A Flask-based RESTful API for managing songs and their ratings, using MongoDB as
 
 ## API Endpoints
 
-| Route | Description
-|
-|
--------
-|
--------------
-|
-|
-`GET /songs`
-|
-List songs with pagination
-|
-|
-`GET /songs/difficulty`
-|
-Get average difficulty, optionally filtered by level
-|
-|
-`GET /songs/search`
-|
-Search songs by artist or title
-|
-|
-`POST /ratings`
-|
-Add a rating for a song
-|
-|
-`GET /ratings/<song_id>/stats`
-|
-Get rating statistics for a song
-|
+| Route | Method | Description | Parameters | Response |
+|-------|--------|-------------|------------|----------|
+| `/songs` | GET | List songs with pagination | `page`: Page number (1-based)<br>`size`: Items per page | List of songs with pagination details |
+| `/songs/difficulty` | GET | Get average difficulty | `level`: (Optional) Filter by song level | Average difficulty value |
+| `/songs/search` | GET | Search songs by artist or title | `message`: Search text for artist/title | List of matching songs |
+| `/ratings` | POST | Add a rating for a song | Body: `song_id`: ID of song<br>`rating`: Value from 1-5 | Created rating details |
+| `/ratings/<song_id>/stats` | GET | Get rating statistics for a song | `song_id`: in path | Average, lowest and highest ratings |
+| `/health` | GET | Service health check | None | Service and database status |
 
 ## Getting Started
 
@@ -69,8 +45,6 @@ Get rating statistics for a song
 The easiest way to run the application is with Docker Compose:
 
 ```bash
-# Clone the repository
-git clone
 cd songs-api
 
 # Start the application with Docker Compose
@@ -85,10 +59,37 @@ This will:
 The API will be available at http://localhost:5000
 
 ## Testing
-### Run Tests
-To run the tests, you can use the following command:
+
+### Docker
+To run the tests in Docker, you can use the following command:
 
 ```bash
-docker-compose run --rm api pytest
+docker-compose run --build --rm songs_api pytest -vv .
 ```
+
+### Local + Docker
+For running tests on your local machine.
+1. You need to start a database (or have the docker-compose running).
+
+if you don't have the docker-compose running, you can start a mongodb
+instance with docker using this command:
+```bash
+docker run --detach --name songs_db --publish 127.0.0.1:27017:27017 mongo:4.4
+```
+
+2. You need to make the local environment setup with poetry:
+
+```bash
+poetry install
+```
+
+Then you can run the tests with:
+
+```bash
+pytest -vv .
+```
+
+
 This will run all the tests in the `tests` directory.
+
+`
