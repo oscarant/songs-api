@@ -13,6 +13,9 @@ class SongResponse(BaseModel):
     level: int
     released: date
 
+class SongListResponse(BaseModel):
+    songs: List[SongResponse]
+
 
 class PagedSongsResponse(BaseModel):
     items: List[SongResponse]

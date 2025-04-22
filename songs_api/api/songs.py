@@ -7,7 +7,7 @@ from songs_api.schemas.api.song import (
     ListSongsParams,
     PagedSongsResponse,
     SearchSongsParams,
-    SongResponse,
+    SongResponse, SongListResponse,
 )
 from songs_api.services.song_service import song_service
 
@@ -46,7 +46,9 @@ def get_average_difficulty(
 
 @songs_bp.route("/search", methods=["GET"])
 @validate()
-def search_songs(query: SearchSongsParams) -> list[SongResponse]:
+def search_songs(query: SearchSongsParams) -> SongListResponse:
     """C: Full-text search on artist/title."""
     items = song_service.search_songs(query.message)
-    return [SongResponse(**item.model_dump()) for item in items]
+    return SongListResponse(
+        songs=[SongResponse.model_validate(item.model_dump()) for item in items],
+    )
