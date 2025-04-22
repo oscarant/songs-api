@@ -13,8 +13,6 @@ def create_app() -> Flask:
     Settings()
     app = Flask(__name__)
 
-    # Import Beanie document models here to avoid circular imports
-
     # Connect to MongoDB
     connect_db()
 
@@ -27,8 +25,5 @@ def create_app() -> Flask:
 
     # Register error handlers
     register_error_handlers(app)
-
-    # Set debug to true
-    app.config["DEBUG"] = Settings().DEBUG
 
     return app
